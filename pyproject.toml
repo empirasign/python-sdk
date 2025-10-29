@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "empirasign"
+dynamic = ["version"]
+description = 'Official Python SDK for Empirasign Market Data & Parser APIs'
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Empirasign Strategies", email = "info@empirasign.com" },
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+  "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+examples = [
+    "pywin32>=303; platform_system=='Windows'",
+]
+
+[project.urls]
+Homepage = "https://www.empirasign.com"
+"Market Data API Documentation" = "https://www.empirasign.com/v1/market-api-docs/"
+"Parser API Documentation" = "https://www.empirasign.com/v1/parser-api-docs/"
+Source = ""
+
+[tool.hatch.version]
+path = "src/empirasign/__about__.py"
