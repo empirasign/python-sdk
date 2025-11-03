@@ -14,7 +14,7 @@
   <h3 align="center">Python API Access</h3>
 
   <p align="center">
-    Access all available Empirasign Market Data & Parser API endpoints with Python. These endpoints have been leveraged to implement example scripts for common use-cases.
+    Access all available Empirasign Market Data & Parser API REST endpoints with Python. Example scripts illustrating the most common use-cases are included in this repository.
     <br /><br>
     <a href="https://www.empirasign.com/v1/market-api-docs/"><strong>Explore the Market Data API docs »</strong></a>
     <br />
@@ -57,26 +57,24 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The API
-
-<!-- [![Product Name Screen Shot][product-screenshot]](https://www.empirasign.com/qstatic/logo/Developer%20Resources/) -->
 Empirasign is the leading provider of secondary market trading data for the Structured Products markets. Our real-time database offers the most exhaustive data set of secondary market activity for all ABS, MBS, & CMBS, with BWIC history dating as far back as 2010. We also cover Corporate Bonds and Levered Loans.
 
-Empirasign offers two APIs for providing the most complete snapshot of the market possible.
+Empirasign offers two APIs which enable the most comprehensive real-time look into the secondary markets available anywhere.
 
 #### The Market Data API
 *Access real-time market observations from our consortium of market participants for an overview of the entire secondary market*
 * Fixed Income & Structured Products
   * BWIC color & dealer price talk
   * Dealer bids, offers, and 2-way markets
-* Corporate IG/HY quotes **[New]**
+* Corporate IG/HY quotes <mark>New</mark>
 
 #### The Parser API (Parser as a Service)
 *Convert your own Inbox emails into parsed, cleaned, & validated data*
 * BWIC emails
 * Dealer Runs emails
-* Corporate IG/HY quote emails **[New]**
-* Loans emails **[New]**
-* CDS emails **[New]**
+* Corporate IG/HY emails <mark>New</mark>
+* Loans emails <mark>New</mark>
+* CDS emails <mark>New</mark>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -88,10 +86,10 @@ Follow these steps to install the Empirasign python SDK and set up your project 
 
 ### Installation
 
-1. Get API credentials for Free Trial by signing up @ [Register Now](https://www.empirasign.com/register) or reaching out to info@empirasign.com
+1. Obtain API credentials by signing up at our [Free Trial Registration Page](https://www.empirasign.com/register) or reaching out to info@empirasign.com
 2. Install package through the github repository
    ```sh
-   pip install git+https://github.com/empirasign/python-api.git
+   pip install git+https://github.com/empirasign/python-sdk.git
    ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -150,8 +148,8 @@ Host: https://api.empirasign.com/v1
 | :---          | :---             | :---                        | :---
 | POST | /parse-run/<br>/parse-bwic/<br>/parse-corp/<br>/parse-loan/<br>/parse-cds/ | **1 per request** | `parse_email_file`<br>`parse_eml`<br>`parse_msg`
 | POST          | /id-mapper/      | **1 per id**                | `get_id_mapping`
-| POST          | /resolve-tickers/| None                        | `get_resolved_tickers`
 | POST          | /mydata/         | None                        | `get_mydata`
+| POST          | /raw-msg/{tx_id}/| None                        | `get_raw_msg`
 | POST          | /submit-email/   | None                        | `submit_eml`<br>`submit_msg`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -201,7 +199,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Empirasign Strategies LLC - [@empirasign](https://twitter.com/empirasign) - info@empirasign.com
 
-Project Link: [https://github.com/empirasign/python-api](https://github.com/empirasign/python-api)
+Project Link: [https://github.com/empirasign/python-sdk](https://github.com/empirasign/python-sdk)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

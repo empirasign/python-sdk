@@ -17,8 +17,8 @@ Endpoint Summary:
                     /parse-cds/
 
     POST            /id-mapper/            1 per id                 get_id_mapping
-    POST            /resolve-tickers/      None                     get_resolved_tickers
     GET             /mydata/               None                     get_mydata
+    POST            /raw-msg/{tx_id}/      None                     get_raw_msg
     POST            /submit-email/         None                     submit_eml
                                                                     submit_msg
 
@@ -134,6 +134,19 @@ class ParserClient(APIClient):
         req_params = self._handle_date_args({}, date_args)
         return self._paginated_requests('mydata', req_params, timeout=timeout)
 
+    def get_raw_msg(self, tx_id, format_msg=False, timeout=None):
+        """
+        Retrieve raw email by transaction ID
+
+        Args:
+            tx_id       (str):  Parser transaction ID (UUID).
+            format_msg  (bool): If True, returns a structured dictionary of email parts.
+                                Returns raw source string by default.
+            timeout     (float | tuple, optional): API request timeout in seconds or
+                                                   (connect timeout, read timeout) tuple
+        """
+        return self._request_api(f'raw-msg/{tx_id}', {'format_msg': format_msg}, 'POST', timeout=timeout)
+
     def get_id_mapping(self, ids, timeout=None):
         """
         Get all associated identifiers for given bonds
@@ -145,17 +158,6 @@ class ParserClient(APIClient):
                                                (connect timeout, read timeout) tuple
         """
         return self._request_api('id-mapper', {'ids': ids}, 'POST', timeout)
-
-    def get_resolved_tickers(self, tickers, timeout=None):
-        """
-        Resolve list of tickers to matching identifiers
-
-        Args:
-            tickers (list[str]): list of tickers
-            timeout (float | tuple, optional): API request timeout in seconds or
-                                               (connect timeout, read timeout) tuple
-        """
-        return self._request_api('resolve-tickers', {'tickers': tickers}, 'POST', timeout)
 
     def submit_eml(self, eml, timeout=None):
         """

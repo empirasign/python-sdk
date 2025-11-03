@@ -50,6 +50,7 @@ CDS_SCHEMA = (
     ('markit_ticker', 'TEXT'),
     ('contract_reference_obligation', 'TEXT'),
     ('eligible_reference_entity', 'TEXT'),
+    ('ref_entity_name', 'TEXT'),
     ('sector', 'TEXT'),
     ('red_code', 'TEXT'),
     ('date_included_for_clearing', 'TEXT'),
