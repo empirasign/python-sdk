@@ -28,7 +28,7 @@ import sys
 import sqlite3
 import argparse
 from time import sleep
-from datetime import datetime, time, timezone
+from datetime import datetime, time, timezone, timedelta
 from pathlib import Path
 
 from empirasign import MarketDataClient
@@ -185,8 +185,16 @@ def main():
         cursor = conn.cursor()
         low_quota = False
         exec_count = 1
+
+        poll_buffer = timedelta(minutes=2)
+        if wait := start_time - (datetime.now(timezone.utc) - poll_buffer):
+            wait_secs = wait.total_seconds()
+            logger.info("waiting %.2f seconds until poll start", wait_secs)
+            time.sleep(wait_secs)
+
         d0 = start_time
-        while (d1 := datetime.now(timezone.utc)) and d1 < stop_time:
+        while (d1 := min(datetime.now(timezone.utc) - poll_buffer, stop_time)) and d0 < stop_time:
+
             quota = api.quota
             logger.info("starting execution #%s, watching sector(s): %s, queries remaining: %s",
                         exec_count, ", ".join(sectors), quota)

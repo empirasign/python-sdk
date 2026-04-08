@@ -108,11 +108,16 @@ def main():
 
     try:
         cursor = conn.cursor()
-        d0 = args.poll_start
-
         api = ParserClient(API_KEY, API_SECRET, PROXY_SERVER)
 
-        while (d1 := min(datetime.now(timezone.utc), args.poll_end)) and d0 < d1:
+        poll_buffer = timedelta(minutes=1)
+        if wait := args.poll_start - (datetime.now(timezone.utc) - poll_buffer):
+            wait_secs = wait.total_seconds()
+            logger.info("waiting %.2f seconds until poll start", wait_secs)
+            time.sleep(wait_secs)
+
+        d0 = args.poll_start
+        while (d1 := min(datetime.now(timezone.utc) - poll_buffer, args.poll_end)) and d0 < args.poll_end:
             d0_fmt, d1_fmt = d0.strftime('%Y-%m-%dT%H:%M:%S'), d1.strftime('%Y-%m-%dT%H:%M:%S')
             logger.info('polling for new MyData records within adjusted timeframe [%s, %s)',
                         d0_fmt, d1_fmt)
