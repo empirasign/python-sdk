@@ -111,8 +111,8 @@ def main():
         api = ParserClient(API_KEY, API_SECRET, PROXY_SERVER)
 
         poll_buffer = timedelta(minutes=1)
-        if wait := args.poll_start - (datetime.now(timezone.utc) - poll_buffer):
-            wait_secs = wait.total_seconds()
+        wait_secs = (args.poll_start - (datetime.now(timezone.utc) - poll_buffer)).total_seconds()
+        if wait_secs > 0:
             logger.info("waiting %.2f seconds until poll start", wait_secs)
             time.sleep(wait_secs)
 

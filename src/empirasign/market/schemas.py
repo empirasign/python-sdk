@@ -8,41 +8,41 @@ Refer to /examples/market for use patterns
 
 # all possible columns across /bonds/ market observations
 MARKET_DATA_SCHEMA = (
-    ('kind', 'TEXT'),  # 'bid', 'offer', 'market', 'bwic', 'pxtalk'
-    ('cusip', 'TEXT'),
-    ('isin', 'TEXT'),
-    ('figi', 'TEXT'),
-    ('bbg_ticker', 'TEXT'),
-    ('list_id', 'TEXT'),
-    ('of', 'REAL'),
-    ('cf', 'REAL'),
-    ('of_bid', 'REAL'),
-    ('of_offer', 'REAL'),
-    ('cf_bid', 'REAL'),
-    ('cf_offer', 'REAL'),
-    ('color', 'TEXT'),
-    ('price_raw', 'TEXT'),
-    ('price', 'TEXT'),
-    ('price_bid', 'TEXT'),
-    ('price_offer', 'TEXT'),
-    ('price32', 'TEXT'),
-    ('price32_bid', 'TEXT'),
-    ('price32_offer', 'TEXT'),
-    ('spread_raw', 'TEXT'),
-    ('spread', 'TEXT'),
-    ('spread_bid', 'TEXT'),
-    ('spread_offer', 'TEXT'),
-    ('curve', 'TEXT'),
-    ('speed', 'REAL'),
-    ('speed_type', 'TEXT'),
-    ('cf_scenario', 'TEXT'),
-    ('group', 'REAL'),
-    ('dealer', 'TEXT'),
+    ("kind", "TEXT"),  # "bid", "offer", "market", "bwic", "pxtalk"
+    ("cusip", "TEXT"),
+    ("isin", "TEXT"),
+    ("figi", "TEXT"),
+    ("bbg_ticker", "TEXT"),
+    ("list_id", "TEXT"),
+    ("of", "REAL"),
+    ("cf", "REAL"),
+    ("of_bid", "REAL"),
+    ("of_offer", "REAL"),
+    ("cf_bid", "REAL"),
+    ("cf_offer", "REAL"),
+    ("color", "TEXT"),
+    ("price_raw", "TEXT"),
+    ("price", "TEXT"),
+    ("price_bid", "TEXT"),
+    ("price_offer", "TEXT"),
+    ("price32", "TEXT"),
+    ("price32_bid", "TEXT"),
+    ("price32_offer", "TEXT"),
+    ("spread_raw", "TEXT"),
+    ("spread", "TEXT"),
+    ("spread_bid", "TEXT"),
+    ("spread_offer", "TEXT"),
+    ("curve", "TEXT"),
+    ("speed", "REAL"),
+    ("speed_type", "TEXT"),
+    ("cf_scenario", "TEXT"),
+    ("group", "REAL"),
+    ("dealer", "TEXT"),
     ("bsym_sec_type", "TEXT"),
-    ('trade_dt', 'TEXT'),  #ISO 8601 FORMAT
-    ('trade_datetime_utc', 'TEXT'),  #ISO 8601 FORMAT
-    ('settle_dt', 'TEXT'),  #ISO 8601 FORMAT
-    ('dealer_notes', 'TEXT')
+    ("trade_dt", "TEXT"),  # ISO 8601 FORMAT
+    ("trade_datetime_utc", "TEXT"),  #ISO 8601 FORMAT
+    ("settle_dt", "TEXT"),  # ISO 8601 FORMAT
+    ("dealer_notes", "TEXT")
 )
 
 # /offers/
@@ -68,8 +68,8 @@ RUNS_SCHEMA = (
     ("spread_bid", "TEXT"),
     ("dealer", "TEXT"),
     ("bsym_sec_type", "TEXT"),
-    ("trade_dt", "TEXT"),  #ISO 8601 FORMAT
-    ("settle_dt", "TEXT"),  #ISO 8601 FORMAT
+    ("trade_dt", "TEXT"),  # ISO 8601 FORMAT
+    ("settle_dt", "TEXT"),  # ISO 8601 FORMAT
     ("dealer_notes", "TEXT"),
 )
 
@@ -95,4 +95,14 @@ CORP_SCHEMA = (
     ("dealer", "TEXT"),
     ("dealer_notes", "TEXT"),
     ("msg_received", "TEXT"),  # ISO 8601 FORMAT
+)
+
+# /bwics/
+BWIC_SCHEMA = (
+    ("list_id", "TEXT"),
+    ("trade_dt_utc", "TEXT"),
+    ("num_bonds", "INTEGER"),
+    ("num_color", "INTEGER"),
+    ("num_talk", "INTEGER"),
+    ("isins", "TEXT")  # json encoded list of CUSIPs and/or ISINs
 )

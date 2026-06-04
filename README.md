@@ -163,6 +163,7 @@ Example scripts for common client API use-cases are included in /examples. All e
 Directory: `/examples/market`
 | Example Script     | Use Case
 | :---             | :---
+| `sector_poll.py`     | Intraday polling for market data for bonds that appear on BWICs and/or Dealer Runs
 | `bwic_poll.py`     | Intraday polling for market data for bonds that appear on BWICs
 | `runs_poll.py` | Intraday polling for bid, offer, and 2-way market observations that appear on Dealer Runs
 | `corp_poll.py` | Intraday polling for Corporate IG/HY quotes

@@ -20,11 +20,11 @@ SECTYPES2 = ("Pool", "CMO", "Whole Loan", "ABS", "TBA", "CMBS", "LL", "ABS Other
 # Empirasign sectors
 RUNS_SECTORS = ("abs", "agarm", "agcmo", "us-clo", "eu-clo", "cmbs", "crt", "eu", "nonag", "spec")
 
-BWIC_MAJOR_SECTORS = ('abs', 'agency', 'all-prime', 'clo', 'cmbs', 'conabs', 'euro', 'naresi',
-                      'nonag', 'spec')
+BWIC_MAJOR_SECTORS = ("abs", "agency", "all-prime", "clo", "cmbs", "conabs", "euro", "naresi",
+                      "nonag", "spec")
 # subsectors of major sectors
-BWIC_MINOR_SECTORS = ('agarm', 'agcmbs', 'agcmo', 'aj', 'alta-15', 'alta-30', 'alta-a', 'am',
-                      'auto', 'card', 'cre-cdo', 'crt', 'equip', 'eu-abs', 'eu-clo', 'eu-cmbs',
-                      'eu-resi', 'heloc', 'heq', 'io', 'mezz', 'mh', 'other', 'prime', 'prime-15',
-                      'prime-30', 'prime-a', 'snr', 'student', 'subprime', 'unk', 'us-clo', 'utility')
-BWIC_SECTORS = BWIC_MAJOR_SECTORS + BWIC_MINOR_SECTORS + ('mtge',) # mtge icludes all sectors
+BWIC_MINOR_SECTORS = ("agarm", "agcmbs", "agcmo", "aj", "alta-15", "alta-30", "alta-a", "am",
+                      "auto", "card", "cre-cdo", "crt", "equip", "eu-abs", "eu-clo", "eu-cmbs",
+                      "eu-resi", "heloc", "heq", "io", "mezz", "mh", "other", "prime", "prime-15",
+                      "prime-30", "prime-a", "snr", "student", "subprime", "unk", "us-clo", "utility")
+BWIC_SECTORS = BWIC_MAJOR_SECTORS + BWIC_MINOR_SECTORS + ("mtge",)  # mtge icludes all sectors

@@ -167,6 +167,7 @@ BWIC_AUCTION_SCHEMA = (
 
 BWIC_BOND_SCHEMA = (
     ('of', 'REAL'),
+    ('cf', 'REAL'),
     ('bbg_ticker', 'TEXT'),
     ('cusip', 'TEXT'),
     ('isin', 'TEXT'),
@@ -182,6 +183,7 @@ BWIC_BOND_SCHEMA = (
 # common mydata meta fields across sectors
 MYDATA_SCHEMA = (
     ('tx_id', 'TEXT'),
+    ('msg_id_isp', 'TEXT'),
     ('msg_received', 'TEXT'),
     ('path', 'TEXT'),
 )

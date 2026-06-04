@@ -120,7 +120,7 @@ def get_runs_records(api, runs, date_args, quota):
     return records, low_quota
 
 
-def get_updated_records(cursor, runs_records):
+def get_updated_records(conn, runs_records):
     """
     update db with new and updated dealer runs records
     """
@@ -128,7 +128,7 @@ def get_updated_records(cursor, runs_records):
     new_records, updated_records = 0, 0
     for record in runs_records:
         record = {key: value for key, value in record.items() if key in RUNS_FLDS}
-        res = upsert(cursor, "runs_records", pks, record, ph="?")
+        res = upsert(conn, "runs_records", pks, record, ph="?")
         if res == "INSERT":
             new_records += 1
         elif res == "UPDATE":
@@ -182,15 +182,14 @@ def main():
         create_sqlite_table(conn, TBL_NAME, RUNS_SCHEMA, {'idx_bbg_ticker': 'bbg_ticker'})
 
     try:
-        cursor = conn.cursor()
         low_quota = False
         exec_count = 1
 
         poll_buffer = timedelta(minutes=2)
-        if wait := start_time - (datetime.now(timezone.utc) - poll_buffer):
-            wait_secs = wait.total_seconds()
+        wait_secs = (start_time - (datetime.now(timezone.utc) - poll_buffer)).total_seconds()
+        if wait_secs > 0:
             logger.info("waiting %.2f seconds until poll start", wait_secs)
-            time.sleep(wait_secs)
+            sleep(wait_secs)
 
         d0 = start_time
         while (d1 := min(datetime.now(timezone.utc) - poll_buffer, stop_time)) and d0 < stop_time:
@@ -207,7 +206,7 @@ def main():
                 logger.info("retrieving records now...")
                 # bids, offers, markets
                 runs_records, low_quota = get_runs_records(api, active_runs, (d0, d1), quota)
-                new_records, updated_records = get_updated_records(cursor, runs_records)
+                new_records, updated_records = get_updated_records(conn, runs_records)
                 if new_records or updated_records:
                     conn.commit()
                     logger.info("%s new, %s updated dealer runs records", new_records,

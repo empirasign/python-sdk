@@ -29,7 +29,7 @@ from pathlib import Path
 from empirasign import MarketDataClient
 from empirasign.utils import get_logger, upsert, create_sqlite_table
 from empirasign.constants import BWIC_SECTORS
-from empirasign.market.schemas import MARKET_DATA_SCHEMA
+from empirasign.market.schemas import BWIC_SCHEMA, MARKET_DATA_SCHEMA
 
 # ------------ USER CONFIGURATION ------------
 
@@ -52,17 +52,7 @@ STOP_MINUTE = 30
 
 logger = get_logger(WORK_DIR / LOG_NAME)
 
-# information about bwics
-# subset of /bwics/ return schema
-BWIC_SCHEMA = (
-    ('list_id', 'TEXT'),
-    ("num_bonds", 'INTEGER'),
-    ("num_color", 'INTEGER'),
-    ("num_talk", 'INTEGER'),
-    ("uids", 'TEXT')  # json encoded list of cusips and/or isins
-)
 BWIC_FLDS = [fld for fld, _ in BWIC_SCHEMA]
-
 MARKET_DATA_FLDS = [fld for fld, _ in MARKET_DATA_SCHEMA]
 
 
@@ -113,7 +103,7 @@ def uids_from_bwics(bwics, items):
     return list(set(uids))
 
 
-def update_bwics(cursor, bwics):
+def update_bwics(conn, bwics):
     """
     insert or update a group of bwics
     figure out which bwics are new, or have changes that need new data retrievals
@@ -124,7 +114,7 @@ def update_bwics(cursor, bwics):
         obj['list_id'] = list_id
         obj['uids'] = json.dumps(_obj['uids'])  # so we can insert into sqlite
         pks = ('list_id',)
-        res = upsert(cursor, 'bwics', pks, obj, ph="?")
+        res = upsert(conn, 'bwics', pks, obj, ph="?")
         if res == 'INSERT':
             new_bwics.append(list_id)
         elif res == 'UPDATE':
@@ -132,7 +122,7 @@ def update_bwics(cursor, bwics):
     return new_bwics, changed_bwics
 
 
-def update_bonds(cursor, mkt_data):
+def update_bonds(conn, mkt_data):
     """
     insert or update a group of bonds
     figure out which bonds are new, or have changes that need new data retrievals
@@ -148,7 +138,7 @@ def update_bonds(cursor, mkt_data):
     for bond in mkt_data:
         curr_pks = pks[bond.get("kind", "bwic")]
         bond = {key: value for key, value in bond.items() if key in MARKET_DATA_FLDS or key in curr_pks}
-        res = upsert(cursor, 'trade_data', curr_pks, bond, ph="?")
+        res = upsert(conn, 'trade_data', curr_pks, bond, ph="?")
         if res == 'INSERT':
             new_bonds.append(bond['bbg_ticker'])
         elif res == 'UPDATE':
@@ -205,7 +195,6 @@ def main():
         create_sqlite_table(conn, 'trade_data', MARKET_DATA_SCHEMA, indices={'idx_list_id': 'bbg_ticker'})
 
     try:
-        cursor = conn.cursor()
         quota_left = 0
         while (dt := datetime.now(timezone.utc)) and dt < stop_time:
 
@@ -216,7 +205,7 @@ def main():
 
             # pull down new BWIC data
             bwics = get_bwic_data(api, trade_dt, sectors)
-            new_bwics, changed_bwics = update_bwics(cursor, bwics)
+            new_bwics, changed_bwics = update_bwics(conn, bwics)
             logger.info("%s new BWICs, %s changed BWICs", len(new_bwics), len(changed_bwics))
 
             if new_bwics or changed_bwics:
@@ -224,7 +213,7 @@ def main():
                 uids = uids_from_bwics(bwics, set(new_bwics + changed_bwics))
                 logger.info("retrieving market data on %s unique bonds", len(uids))
                 mkt_data = get_trade_data(api, trade_dt, uids)
-                new_bonds, changed_bonds = update_bonds(cursor, mkt_data)
+                new_bonds, changed_bonds = update_bonds(conn, mkt_data)
                 logger.info("%s new bonds, %s changed bonds", len(new_bonds), len(changed_bonds))
                 if new_bonds or changed_bonds:
                     conn.commit()

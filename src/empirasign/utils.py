@@ -67,15 +67,16 @@ def make_update(tbl, data, pks, ph='?'):
     """
     execute a complete UPDATE SQL command
     """
-    match_clause = " AND ".join([f"{key} = {ph}" for key in pks])
-    set_clause = ",".join([f"{key} = {ph}" for key in data])
+    match_clause = " AND ".join([f"`{key}` = {ph}" for key in pks])
+    set_clause = ",".join([f"`{key}` = {ph}" for key in data])
     return f"UPDATE {tbl} SET {set_clause} WHERE {match_clause};"
 
 
-def upsert(cursor, tbl, pks, data, ph="?", ignore_cols=None):
+def upsert(conn, tbl, pks, data, ph="?", ignore_cols=None):
     """
     if record matches data on pks, do an update, otherwise do an insert
     """
+    cursor = conn.cursor()
     if ignore_cols:
         cols = set(data.keys()) - set(ignore_cols)
     else:
@@ -84,9 +85,9 @@ def upsert(cursor, tbl, pks, data, ph="?", ignore_cols=None):
     match_clause, query_keys = [], []
     for key in cols:
         if data[key] is None:
-            match_clause.append(f"{key} IS NULL")
+            match_clause.append(f"`{key}` IS NULL")
         else:
-            match_clause.append(f"{key} = {ph}")
+            match_clause.append(f"`{key}` = {ph}")
             query_keys.append(key)
 
     if match_clause:
@@ -99,24 +100,29 @@ def upsert(cursor, tbl, pks, data, ph="?", ignore_cols=None):
     results = cursor.fetchall()[0][0]
 
     if results > 1:  # we have dupes
+        cursor.close()
         raise ValueError(f'duplicate record: {data}')
     if results == 1:
+        cursor.close()
         return "NO CHANGES"
 
     # check for partial match on pks
-    match_clause = " AND ".join([f"{key} = {ph}" for key in pks])
+    match_clause = " AND ".join([f"`{key}` = {ph}" for key in pks])
     q = f"SELECT COUNT(*) FROM {tbl} WHERE {match_clause};"
     cursor.execute(q, tuple(data[key] for key in pks))
     results = cursor.fetchall()[0][0]
     if results > 1:  # our pks do not constitute uniqueness
+        cursor.close()
         raise ValueError(f'primary keys retrieve multiple records--uniqueness violated: {pks}')
     if results == 1:
         q = make_update(tbl, data, pks, ph)
         cursor.execute(q, tuple(list(data.values()) + [data[key] for key in pks]))
+        cursor.close()
         return 'UPDATE'
     # no matches found; so do an insert
     q = make_insertp(tbl, data.keys(), ph)
     cursor.execute(q, tuple(data.values()))
+    cursor.close()
     return 'INSERT'
 
 
