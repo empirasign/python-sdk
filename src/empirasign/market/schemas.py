@@ -100,6 +100,8 @@ CORP_SCHEMA = (
 # /bwics/
 BWIC_SCHEMA = (
     ("list_id", "TEXT"),
+    ("description", "TEXT"),
+    ("seller", "TEXT"),
     ("trade_dt_utc", "TEXT"),
     ("num_bonds", "INTEGER"),
     ("num_color", "INTEGER"),

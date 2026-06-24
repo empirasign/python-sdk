@@ -22,7 +22,6 @@ Sample Calls:
 
 import argparse
 import datetime
-import json
 import sys
 import tempfile
 import time
@@ -31,6 +30,7 @@ from pathlib import Path
 from empirasign import MarketDataClient
 from empirasign.utils import get_logger
 from empirasign.constants import BWIC_SECTORS
+from empirasign.intex_utils import write_intex_bwic
 
 # ------------ USER CONFIGURATION ------------
 
@@ -56,26 +56,6 @@ STOP_MINUTE = 30
 # ------------ END USER CONFIGURATION ------------
 
 logger = get_logger(LOG_DIR / LOG_NAME)
-
-
-def _make_intex_data(bwic):
-    """
-    reshape API bwic object into INTEXCalc data format
-    """
-    idata = {"Size": 0, "Securities": []}
-    for bond in bwic["bonds"]:
-        idata["Size"] += round(bond["of"] * 1e6)
-        idata["Securities"].append({
-            "Orig Face": round(bond["of"] * 1e6),
-            "Tranche ID": bond["isin"]
-        })
-    idata["Notes"] = bwic.get("description") or ""
-    if bwic.get("seller"):
-        idata["Notes"] += f'Seller: {bwic["seller"]}'
-    idata["Settle Date"] = bwic["settle_dt"]
-    idata["Date"] = bwic["trade_dt_utc"][:-1] + "-00:00"
-    fpath = bwic["trade_dt"][:10].replace("-", "") + "/" + bwic["list_id"] + ".bwic"
-    return fpath, idata
 
 
 def utc_minutes():
@@ -131,20 +111,7 @@ def main():
                 logger.info("sector: %s num_results: %s, API meta data: %s", sector,
                             len(resp["data"]), resp["meta"])
                 for bwic in resp["data"]:
-                    fpath, idata = _make_intex_data(bwic)
-                    cur_dir = INTEX_BWIC_DIR / fpath.split("/")[0]
-                    if not cur_dir.is_dir():
-                        cur_dir.mkdir()
-                    json_path = INTEX_BWIC_DIR / fpath
-                    if not json_path.is_file():
-                        # save to disk
-                        json_bytes = json.dumps(idata, ensure_ascii=False, indent=2).encode("utf-8")
-                        with open(json_path, "wb") as fp:
-                            fp.write(json_bytes)
-                        logger.info("saved bwic: %s, bonds: %s, bytes: %s path: %s",
-                                    bwic["list_id"], len(bwic["bonds"]), len(json_bytes), json_path)
-                    else:
-                        logger.info("not overwriting existing bwic json file: %s", json_path)
+                    write_intex_bwic(INTEX_BWIC_DIR, bwic)
             if args.one_shot:
                 logger.info("ran sector(s) %s once, now exiting main loop", sectors)
                 break

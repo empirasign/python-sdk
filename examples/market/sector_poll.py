@@ -33,8 +33,9 @@ Sample Calls:
 import sys
 import sqlite3
 import argparse
-from time import sleep
 import json
+import tempfile
+from time import sleep
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from collections import defaultdict, namedtuple
@@ -42,6 +43,7 @@ from collections import defaultdict, namedtuple
 from empirasign import MarketDataClient
 from empirasign.market.schemas import BWIC_SCHEMA, MARKET_DATA_SCHEMA
 from empirasign.utils import get_logger, upsert, create_sqlite_table, chunker
+from empirasign.intex_utils import write_intex_bwic, write_intex_mktd
 from empirasign.constants import RUNS_SECTORS, BWIC_SECTORS
 
 # ------------ USER CONFIGURATION ------------
@@ -54,11 +56,19 @@ PROXY_SERVER = ""  #e.g. proxy.mycompany.net:8080
 
 WORK_DIR = Path()  # where the sqlite and log files will be saved
 DB_NAME = "sector_poll.sqlite"  # name of sqlite database file (all tables live here)
+
 LOG_NAME = "sector_poll.log"
 
 # poll for new market data between 06:00 and 22:30 UTC, or 02:00 AM and 6:30 PM EST
 DEFAULT_START_UTC = "06:00"
 DEFAULT_END_UTC = "22:30"  # needs to be adjusted when daylight savings time switches
+
+INTEX_BWIC_DIR = Path('' or tempfile.gettempdir())
+INTEX_MKTD_DIR = Path('' or tempfile.gettempdir())
+# The Default Locations looks something like below
+# C:\Users\WINDOWS_USERNAME\AppData\Roaming\intex\settings\market_data\bwic
+# C:\Users\WINDOWS_USERNAME\AppData\Roaming\intex\settings\market_data\market_color
+# If your org has a shared location for Intex market_data, the path will be different
 
 # ------------ END USER CONFIGURATION ------------
 
@@ -150,7 +160,7 @@ def _get_active_runs(api, sectors, date_args):
     return active_isins
 
 
-def _get_active_bwics(conn, api, sectors, dt):
+def _get_active_bwics(conn, api, sectors, dt, store_intex=False):
     """
     get active BWICs in provided sectors
     """
@@ -164,12 +174,12 @@ def _get_active_bwics(conn, api, sectors, dt):
             logger.error("FAILURE while querying for %s", sector)
             continue
         for row in resp_json["data"]:
-            bwics[row["list_id"]] = {key: value for key, value in row.items() if key in BWIC_FLDS}
+            bwics[row["list_id"]] = row
 
     # maintain state to determine new or updated BWICs
     list_ids = defaultdict(set)
     for list_id, _obj in bwics.items():
-        obj = {key: value for key, value in _obj.items()}
+        obj = {key: value for key, value in _obj.items() if key in BWIC_FLDS}
         obj["isins"] = json.dumps(_obj["isins"])  # so we can insert into sqlite
         res = upsert(conn, "bwics_meta", ("list_id",), obj, ph="?")
         list_ids[res].add(list_id)
@@ -180,6 +190,8 @@ def _get_active_bwics(conn, api, sectors, dt):
     active_isins = set()
     for list_id in list_ids['INSERT'] | list_ids['UPDATE']:
         active_isins |= set(bwics[list_id]['isins'])
+        if store_intex:
+            write_intex_bwic(INTEX_BWIC_DIR, bwics[list_id])
 
     logger.info("%s active %s ISINs across (%s) new and (%s) updated BWICs",
                 len(active_isins), sectors, len(list_ids['INSERT']), len(list_ids['UPDATE']))
@@ -187,14 +199,15 @@ def _get_active_bwics(conn, api, sectors, dt):
     return active_isins
 
 
-def _poll_active_isins(conn, api, sectors, trade_dt, d0, d1):
+def _poll_active_isins(conn, api, sectors, trade_dt, d0, d1, store_intex=False):
     """
     1. polls for new dealer runs in the provided time slice
     2. polls for new BWIC updates by checking state against SQLite backend
     3. returns a comprehensive set of ISINs that need to be queried
     """
     active_runs_isins = _get_active_runs(api, sectors.runs, (d0, d1))
-    active_bwic_isins = _get_active_bwics(conn, api, sectors.bwic, trade_dt)
+    active_bwic_isins = _get_active_bwics(conn, api, sectors.bwic, trade_dt,
+                                          store_intex)
     return active_runs_isins | active_bwic_isins
 
 
@@ -218,7 +231,7 @@ def _pull_market_data(api, query_isins, trade_dt):
     return market_data, quota_left
 
 
-def _store_market_data(conn, market_data):
+def _store_market_data(conn, market_data, store_intex=False):
     """
     inserts and/or updates market observations according to record-type specific primary keys
     """
@@ -229,6 +242,10 @@ def _store_market_data(conn, market_data):
         'bwic': ('kind', 'bbg_ticker', 'list_id'),
         'pxtalk': ('kind', 'bbg_ticker', 'list_id', 'dealer')
     }
+
+    if store_intex:
+        write_intex_mktd(INTEX_MKTD_DIR, market_data, True)
+
     insert_logs, update_logs = defaultdict(int), defaultdict(int)
     for record in market_data:
         if record.get('kind') in pks:
@@ -277,6 +294,8 @@ def main():
                         help="creates/overwrites new SQLite tables for demo backend")
     parser.add_argument("-O", "--one-shot", dest="one_shot", action="store_true",
                         help="poll once, no looping")
+    parser.add_argument("-I", "--intex", dest="store_intex", action="store_true",
+                        help="write to INTEXCalc compatible data files")
     parser.add_argument("-v", action="store_true", dest="verbose", help="log all debugging info")
     args = parser.parse_args()
 
@@ -311,12 +330,13 @@ def main():
 
         while (d1 := min(datetime.now(timezone.utc) - poll_buffer, end_time)) and d0 < end_time:
             logger.info("starting execution #%s, queries remaining: %s", exec_count, quota)
-            if active_isins := _poll_active_isins(conn, api, sectors, market_date, d0, d1):
+            if active_isins := _poll_active_isins(conn, api, sectors, market_date, d0, d1,
+                                                  args.store_intex):
                 if quota < len(active_isins):
                     logger.warning("running low on queries, now exiting")
                     break
                 market_data, quota = _pull_market_data(api, active_isins, market_date)
-                _store_market_data(conn, market_data)
+                _store_market_data(conn, market_data, args.store_intex)
                 sleep_time = 60
             else:
                 sleep_time = 120 # IF NO ACTIVE BONDS, WAIT TWO MINUTES BEFORE NEXT POLL
