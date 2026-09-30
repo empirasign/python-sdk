@@ -82,6 +82,43 @@ CDS_SCHEMA = (
     ('cow', 'REAL'),
 )
 
+# /parse-loan/
+LOAN_SCHEMA = (
+    ('bbg_ticker', 'TEXT'),
+    ('cusip', 'TEXT'),
+    ('isin', 'TEXT'),
+    ('figi', 'TEXT'),
+    ('size_bid', 'REAL'),
+    ('size_offer', 'REAL'),
+    ('price_bid', 'REAL'),
+    ('price_offer', 'REAL'),
+    ('axe_bid', 'INTEGER'),
+    ('axe_offer', 'INTEGER'),
+    ('yield_bid', 'REAL'),
+    ('yield_offer', 'REAL'),
+    ('ytc_bid', 'REAL'),
+    ('ytc_offer', 'REAL'),
+    ('ytm_bid', 'REAL'),
+    ('ytm_offer', 'REAL'),
+    ('ytw_bid', 'REAL'),
+    ('ytw_offer', 'REAL'),
+    ('coupon', 'REAL'),
+    ('floor', 'REAL'),
+    ('tranche', 'TEXT'),
+    ('maturity', 'TEXT'),
+    ('cfr', 'TEXT'),
+    ('facility', 'TEXT'),
+    ('recovery', 'TEXT'),
+    ('call_pro', 'TEXT'),
+    ('cov_lite', 'INTEGER'),
+    ('loan_size', 'REAL'),
+    ('margin', 'REAL'),
+    ('notes', 'TEXT'),
+    ('dealer', 'TEXT'),
+    ('trade_dt', 'TEXT'),
+    ('settle_dt', 'TEXT'),
+)
+
 # /parse-run/
 # MyData: excel_results are flattened with wb_name embedded
 

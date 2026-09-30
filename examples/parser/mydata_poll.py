@@ -27,8 +27,8 @@ from pathlib import Path
 
 from empirasign import ParserClient
 from empirasign.utils import get_logger, make_insertp, create_sqlite_table
-from empirasign.parser.schemas import (CORP_SCHEMA, CDS_SCHEMA, MYDATA_SCHEMA, RUNS_SCHEMA,
-                                       BWIC_AUCTION_SCHEMA, BWIC_BOND_SCHEMA)
+from empirasign.parser.schemas import (CORP_SCHEMA, CDS_SCHEMA, MYDATA_SCHEMA, LOAN_SCHEMA,
+                                       RUNS_SCHEMA, BWIC_AUCTION_SCHEMA, BWIC_BOND_SCHEMA)
 
 # ------------ USER CONFIGURATION ------------
 
@@ -49,6 +49,7 @@ logger = get_logger(WORK_DIR / LOG_NAME)
 SCHEMAS = {
     'corp': MYDATA_SCHEMA + CORP_SCHEMA,
     'cds': MYDATA_SCHEMA + CDS_SCHEMA,
+    # 'loan': MYDATA_SCEMA + LOAN_SCHEMA,
     # 'run': MYDATA_SCHEMA + RUNS_SCHEMA,
     # 'bwic': MYDATA_SCHEMA + tuple(set(BWIC_AUCTION_SCHEMA + BWIC_BOND_SCHEMA)) # remove shared flds
 }
