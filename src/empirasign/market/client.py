@@ -13,6 +13,7 @@ Endpoint Summary:
     POST            /api/v1/bonds/         1 per bond               get_market_data
     GET             /api/v1/bwics/         None                     get_bwics
     POST            /api/v1/nport/         1 per bond               get_nport
+    POST            /api/v1/etf/           1 per bond               get_etf_holdings
     GET             /api/v1/offers/        None                     get_available_runs
     GET             /api/v1/offers/        1 per offer              get_dealer_runs
     GET             /api/v1/deal-classes/  None                     get_deal
@@ -141,6 +142,18 @@ class MarketDataClient(APIClient):
         """
         req_params = self._handle_date_args({}, date_args)
         return self.__bulk_request_api('nport', uids, req_params, 750, timeout=timeout)
+
+    def get_etf_holdings(self, uids, date_args=None, timeout=None):
+        """
+        Get ETF holdings data for a list of bonds.
+        Args:
+            uids         (list of str): List of bond identifiers (CUSIPs or ISINs only).
+            date_args    (datetime.date or str:YYYY-MM-DD, Optional): Single search date.
+                         (tuple, Optional): Start and end of date range (inclusive).
+                         NOTE: Defaults to no date constraint
+        """
+        req_params = self._handle_date_args({}, date_args)
+        return self.__bulk_request_api('etf', uids, req_params, 750, timeout=timeout)
 
     def get_deal_classes(self, uid, timeout=None):
         """

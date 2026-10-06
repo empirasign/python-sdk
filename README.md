@@ -123,11 +123,12 @@ Host: https://www.empirasign.com/api/v1
 
 | HTTP METHOD   | API ENDPOINT     | QUOTA HIT                      | CLASS METHOD
 | :---          | :---             | :---                           | :---
-| POST          |  /bonds/         | **1 per requested bond**           |  `get_market_data`
+| POST          |  /bonds/         | **1 per requested bond**       |  `get_market_data`
 | GET           |  /bwics/         | None                           |  `get_bwics`
-| POST          |  /nport/         | **1 per requested bond**           |  `get_nport`
+| POST          |  /nport/         | **1 per requested bond**       |  `get_nport`
+| POST          |  /etf/           | **1 per requested bond**       |  `get_etf_holdings`
 | GET           |  /offers/        | None                           |  `get_available_runs`
-| GET           |  /offers/        | **1 per offer**                    |  `get_dealer_runs`
+| GET           |  /offers/        | **1 per offer**                |  `get_dealer_runs`
 | GET           |  /deal-classes/  | None                           |  `get_deal`
 | GET           |  /all-bonds/     | None                           |  `get_active_bonds`
 | POST          |  /collab/        | None                           |  `get_suggested`
@@ -136,7 +137,7 @@ Host: https://www.empirasign.com/api/v1
 | GET           |  /mystatus/      | None                           |  `get_status`
 | POST          |  /corp-bonds/    | **1 per requested bond, per page** | `get_corp_market_data`
 | GET           |  /corp-runs/     | None                           | `get_corp_available_runs`
-| GET           |  /corp-runs/     | **1 per offer, per page**          | `get_corp_dealer_runs`
+| GET           |  /corp-runs/     | **1 per offer, per page**      | `get_corp_dealer_runs`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
