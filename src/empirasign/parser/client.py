@@ -132,7 +132,7 @@ class ParserClient(APIClient):
                                                    (connect timeout, read timeout) tuple
         """
         req_params = self._handle_date_args({}, date_args)
-        return self._paginated_requests('mydata', req_params, timeout=timeout)
+        return self._paginated_requests('mydata', req_params, timeout=timeout, throttle_rps=4)
 
     def get_raw_msg(self, tx_id, format_msg=False, timeout=None):
         """

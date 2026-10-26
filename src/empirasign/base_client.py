@@ -118,18 +118,21 @@ class APIClient:
                 logger.info('Errors: ' + '\n'.join(resp_json['meta']['errors']))
         return resp_json
 
-    def _paginated_requests(self, endpoint, params, method='GET', max_pages=None, timeout=None):
+    def _paginated_requests(self, endpoint, params, method='GET', max_pages=None, timeout=None,
+                            throttle_rps=1):
         """
         Loop through paginated responses, consolidate results
         """
         next_url = f'{self._api_scheme}://{self._api_host}{self._api_base}/v{self._api_version}/{endpoint}/'
+
+        throttle_delay = (1 / throttle_rps) * 1.05
 
         results = {"data": []}
         results['meta'] = {'errors': [], 'warnings': []}
 
         pages_read = 0
         while next_url:
-            time.sleep(1)
+            t0 = time.monotonic()
             resp = self._request(next_url, params, method, timeout)
             resp_json = resp.json()
             next_url = None
@@ -160,6 +163,7 @@ class APIClient:
                     logger.info('Showing %s results', paging['page_size'])
                 if paging.get(self._next_page_key) and (not max_pages or max_pages > pages_read):
                     next_url = paging[self._next_page_key]
+                    time.sleep(max(throttle_delay - (time.monotonic() - t0), 0))
         return results
 
     @staticmethod

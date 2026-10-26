@@ -277,7 +277,8 @@ class MarketDataClient(APIClient):
         NOTE: Defaults to no date constraint
         """
         req_params = self._handle_date_args({'bonds': ",".join(uids)}, date_args)
-        return self._paginated_requests('corp-bonds', req_params, 'POST', max_pages, timeout)
+        return self._paginated_requests('corp-bonds', req_params, 'POST', max_pages, timeout,
+                                        throttle_rps=5)
 
     def get_corp_available_runs(self, date_args=None, timeout=None):
         """
@@ -304,4 +305,5 @@ class MarketDataClient(APIClient):
         NOTE: Defaults to today, datetime range constraints must be same day
         """
         req_params = self._handle_date_args({'dealer': dealer}, date_args, default_today=True)
-        return self._paginated_requests('corp-runs', req_params, 'GET', max_pages, timeout)
+        return self._paginated_requests('corp-runs', req_params, 'GET', max_pages, timeout,
+                                        throttle_rps=5)
