@@ -214,6 +214,28 @@ class MarketDataClient(APIClient):
             raise ValueError("If specified, kind must be either 'bwics' or 'runs'")
         return self._request_api('all-bonds', req_params, timeout=timeout)
 
+    def get_new_issues(self, deal_ticker=None, since=None, securitytype=None, limit=None,
+                       timeout=None):
+        """
+        Get new issue event data
+        Args:
+            deal_ticker  (str, Optional): deal issuer or ticker match value
+            since        (datetime.datetime or ISO 8601 str, Optional): minimum modified_at timestamp
+            securitytype (str[], Optional): list of OpenFIGI securitytype values
+            limit        (int, Optional): max number of records returned
+        NOTE: Defaults to most recent 100 events
+        """
+        req_params = {}
+        if deal_ticker:
+            req_params['deal_ticker'] = deal_ticker
+        if securitytype:
+            req_params['securitytype'] = securitytype
+        if limit:
+            req_params['limit'] = limit
+        if since:
+            req_params['since'] = since.strftime("%Y-%m-%dT%H:%M:%S")
+        return self._request_api('new-issue', req_params, timeout=timeout)
+
     def get_all_matchers(self, dt=None, timeout=None):
         """
         Get all bonds that appeared on BWICs or Dealer Runs for a given date that also appeared on

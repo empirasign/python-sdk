@@ -108,3 +108,50 @@ BWIC_SCHEMA = (
     ("num_talk", "INTEGER"),
     ("isins", "TEXT")  # json encoded list of CUSIPs and/or ISINs
 )
+
+# all possible columns across /new-issue/ observations
+# deal-level
+NEWISSUE_DEAL_SCHEMA = (
+    ("event_id", "TEXT"),
+    ("clo_rate_adjusted", "TEXT"),
+    ("deal_ticker", "TEXT"),
+    ("deal_ticker_validated", "BOOLEAN"),
+    ("marketing_rule_disclosure", "BOOLEAN"),
+    ("name", "TEXT"),
+    ("managers", "TEXT"),
+    ("figi_securitytype2", "TEXT"),
+    ("figi_securitytype", "TEXT"),
+    ("collat", "TEXT"),
+    ("size", "REAL"),
+    ("px_speed", "TEXT"),
+    ("pay_dt", "TEXT"),
+    ("non_call", "TEXT"),
+    ("reinv", "TEXT"),
+    ("settle_dt", "TEXT"),
+    ("msg_received", "TEXT"),
+    ("created_at", "TEXT"),
+    ("modified_at", "TEXT"),
+)
+# class-level
+NEWISSUE_CLASS_SCHEMA = (
+    ("event_id", "TEXT"),
+    ("class", "TEXT"),
+    ("size", "REAL"),
+    ("ce", "REAL"),
+    ("yld", "REAL"),
+    ("coup", "REAL"),
+    ("ltv", "REAL"),
+    ("lfinal", "TEXT"),
+    ("efinal", "TEXT"),
+    ("pwindow", "TEXT"),
+    ("rtg", "BLOB"),
+    ("guidance", "TEXT"),
+    ("ipt", "TEXT"),
+    ("launch", "TEXT"),
+    ("price", "REAL"),
+    ("price32", "TEXT"),
+    ("spread", "REAL"),
+    ("curve", "TEXT"),
+    ("desc", "TEXT"),
+    ("comments", "TEXT"),
+)
