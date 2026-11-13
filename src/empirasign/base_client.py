@@ -26,6 +26,8 @@ class APIClient:
         headers     (dict): API request headers
     """
     _ua_string_suffix = " api-oo-v1"
+    _date_format = "%Y-%m-%d"
+    _timestamp_format = "%Y-%m-%dT%H:%M:%S"
 
     # API path
     # assigned by subclasses
@@ -166,8 +168,8 @@ class APIClient:
                     time.sleep(max(throttle_delay - (time.monotonic() - t0), 0))
         return results
 
-    @staticmethod
-    def _handle_date_args(req_params, date_args, default_today=False):
+    @classmethod
+    def _handle_date_args(cls, req_params, date_args, default_today=False):
         """
         handle single date, date range, or no date situations
         """
@@ -175,29 +177,36 @@ class APIClient:
         if isinstance(date_args, (list, tuple)) and len(date_args) == 2:
             start, end = date_args[0], date_args[1]
             if isinstance(start, datetime.datetime) and isinstance(end, datetime.datetime):
-                args['d0'] = start.strftime("%Y-%m-%dT%H:%M:%S")
-                args['d1'] = end.strftime("%Y-%m-%dT%H:%M:%S")
+                args['d0'] = start.strftime(cls._timestamp_format)
+                args['d1'] = end.strftime(cls._timestamp_format)
             elif isinstance(start, datetime.date) and isinstance(end, datetime.date):
-                args['d0'] = start.strftime("%Y-%m-%d")
-                args['d1'] = end.strftime("%Y-%m-%d")
+                args['d0'] = start.strftime(cls._date_format)
+                args['d1'] = end.strftime(cls._date_format)
             else:
                 args['d0'] = start
                 args['d1'] = end
         elif isinstance(date_args, (str, datetime.date)):
             single = date_args
-            args['dt'] = single.strftime("%Y-%m-%d") if isinstance(single, datetime.date) else single
+            args['dt'] = single.strftime(cls._date_format) if isinstance(single, datetime.date) else single
         elif default_today:
-            args['dt'] = datetime.date.today().strftime("%Y-%m-%d")
+            args['dt'] = datetime.date.today().strftime(cls._date_format)
         elif date_args:
             raise ValueError("Invalid date arguments")
         req_params.update(args)
         return req_params
 
-    @staticmethod
-    def _handle_single_dt(dt, default_today=False):
+    @classmethod
+    def _handle_single_dt(cls, dt, default_today=False):
         """
         handle single date formatting and default
         """
         if default_today:
             dt = dt or datetime.date.today()
-        return dt.strftime('%Y-%m-%d') if isinstance(dt, datetime.date) else dt
+        return dt.strftime(cls._date_format) if isinstance(dt, datetime.date) else dt
+
+    @classmethod
+    def _handle_single_ts(cls, ts):
+        """
+        handle single timestamp formatting
+        """
+        return ts.strftime(cls._timestamp_format) if isinstance(ts, datetime.datetime) else ts

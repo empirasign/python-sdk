@@ -233,7 +233,7 @@ class MarketDataClient(APIClient):
         if limit:
             req_params['limit'] = limit
         if since:
-            req_params['since'] = since.strftime("%Y-%m-%dT%H:%M:%S")
+            req_params['since'] = self._handle_single_ts(since)
         return self._request_api('new-issue', req_params, timeout=timeout)
 
     def get_all_matchers(self, dt=None, timeout=None):
