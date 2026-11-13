@@ -131,6 +131,8 @@ Host: https://www.empirasign.com/api/v1
 | GET           |  /offers/        | **1 per offer**                |  `get_dealer_runs`
 | GET           |  /deal-classes/  | None                           |  `get_deal`
 | GET           |  /all-bonds/     | None                           |  `get_active_bonds`
+| GET           |  /all-matchers/  | None                           |  `get_all_matchers`
+| GET           |  /new-issue/     | None                           |  `get_new_issues`
 | POST          |  /collab/        | None                           |  `get_suggested`
 | GET           |  /mbsfeed/       | None                           |  `get_events`
 | GET           |  /query-log/     | None                           |  `get_query_log`
@@ -168,6 +170,7 @@ Directory: `/examples/market`
 | `bwic_poll.py`     | Intraday polling for market data for bonds that appear on BWICs
 | `runs_poll.py` | Intraday polling for bid, offer, and 2-way market observations that appear on Dealer Runs
 | `corp_poll.py` | Intraday polling for Corporate IG/HY quotes
+| `new_issue_poll.py` | Intraday polling for New Issue events
 | `intex_mktd.py` | Export Empirasign market data to INTEXCalc .mktd format
 | `bwics_to_intex.py` | Export Empirasign BWIC data to INTEXCalc .bwic format
 | `eod_data_grab.py` | End-of-day pull of all available market observations
