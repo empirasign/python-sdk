@@ -127,7 +127,7 @@ def _get_new_issue_events(api, securitytypes, since, limit):
                               limit=limit)
     if resp["meta"]["results"] != "OK":
         logger.error("FAILURE! polling for new issue events, errors: %s", resp["meta"]["errors"])
-        return []
+        return [], [], []
 
     logger.info("%s events across %s since %s", len(resp["data"]), securitytypes, since)
     deal_recs, class_recs, delete_ids = [], [], []
